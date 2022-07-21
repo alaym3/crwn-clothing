@@ -37,6 +37,33 @@ export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
 export const db = getFirestore();
 
 // take data from authentication service and store it inside firestore
-const createUserDocumentFromAuth = async (userAuth) => {
-    // const 
-}
+export const createUserDocumentFromAuth = async (userAuth) => {
+    const userDocRef = doc(db, 'users', userAuth.uid); // save the reference
+    
+    const userSnapshot = await getDoc(userDocRef); // this object can be used to see if the ref/data already exists in the db
+    console.log(userSnapshot.exists()); // log if the user exists
+
+    // if user data does not exist
+    //  create/set document with data from userAuth
+    if(!userSnapshot.exists()) {
+        const {displayName, email} = userAuth;
+        const createdAt = new Date();
+
+        try {
+            await setDoc(userDocRef, {
+                displayName,
+                email,
+                createdAt
+            });
+        } catch (error) {
+            console.log('error creating the user', error.message);
+        }
+    }
+
+    // if user data exists
+    //   return userDocRef 
+    return userDocRef;
+
+   
+
+};
